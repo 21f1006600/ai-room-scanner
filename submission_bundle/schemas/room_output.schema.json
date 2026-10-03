@@ -1,0 +1,111 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Room Scanning Unified Output Contract",
+  "type": "object",
+  "required": ["capture_metadata", "rooms", "processing_status", "known_limitations"],
+  "properties": {
+    "capture_metadata": {
+      "type": "object",
+      "required": ["dataset_identifier", "selected_frame", "input_dimensions", "input_tier", "depth_scale_verified", "camera_calibration_verified", "geometric_measurements_units"],
+      "properties": {
+        "dataset_identifier": {"type": "string"},
+        "selected_frame": {"type": "integer", "minimum": 0},
+        "input_dimensions": {
+          "type": "array",
+          "items": [{"type": "integer"}, {"type": "integer"}],
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "[height, width] in pixels"
+        },
+        "input_tier": {"type": ["string", "null"], "enum": ["photo", "video", "lidar", null]},
+        "depth_scale_verified": {"type": "boolean"},
+        "camera_calibration_verified": {"type": "boolean"},
+        "geometric_measurements_units": {"type": "string"}
+      }
+    },
+    "rooms": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["room_identifier", "raw_measurements", "metric_measurements", "walls", "floor", "ceiling", "openings", "surface_damage_regions", "concealed_damage_flags", "scope_line_items", "adjacency_to_other_rooms", "processing_status", "limitations"],
+        "properties": {
+          "room_identifier": {"type": "string"},
+          "raw_measurements": {
+            "type": "object",
+            "properties": {
+              "point_cloud_statistics": {
+                "type": "object",
+                "properties": {
+                  "num_points": {"type": "integer"},
+                  "xyz_min": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+                  "xyz_max": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+                  "xyz_extent": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+                  "depth_range_raw": {"type": "array", "items": {"type": "integer"}, "minItems": 3, "maxItems": 3}
+                },
+                "required": ["num_points", "xyz_min", "xyz_max", "xyz_extent", "depth_range_raw"]
+              },
+              "planes": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["plane_id", "equation", "normal", "inlier_count", "inlier_percentage", "mean_residual", "median_residual"],
+                  "properties": {
+                    "plane_id": {"type": "integer"},
+                    "equation": {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4},
+                    "normal": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+                    "inlier_count": {"type": "integer"},
+                    "inlier_percentage": {"type": "number"},
+                    "mean_residual": {"type": "number"},
+                    "median_residual": {"type": "number"}
+                  }
+                }
+              },
+              "bounding_box": {
+                "type": "object",
+                "properties": {
+                  "xy_area": {"type": "number"},
+                  "z_extent": {"type": "number"}
+                },
+                "required": ["xy_area", "z_extent"]
+              },
+              "angular_diff_deg": {"type": "number"},
+              "unassigned_points": {
+                "type": "object",
+                "properties": {
+                  "count": {"type": "integer"},
+                  "percentage": {"type": "number"}
+                },
+                "required": ["count", "percentage"]
+              }
+            },
+            "required": ["point_cloud_statistics", "planes", "bounding_box", "angular_diff_deg", "unassigned_points"]
+          },
+          "metric_measurements": {"type": ["string", "null"], "enum": ["not_implemented"]},
+          "walls": {"type": ["string", "null"], "enum": ["not_implemented"]},
+          "floor": {"type": ["string", "null"], "enum": ["not_implemented"]},
+          "ceiling": {"type": ["string", "null"], "enum": ["not_implemented"]},
+          "openings": {"type": ["string", "null"], "enum": ["not_implemented"]},
+          "surface_damage_regions": {"type": ["string", "null"], "enum": ["not_implemented"]},
+          "concealed_damage_flags": {"type": ["string", "null"], "enum": ["not_implemented"]},
+          "scope_line_items": {"type": ["string", "null"], "enum": ["not_implemented"]},
+          "adjacency_to_other_rooms": {
+            "type": "array",
+            "items": {"type": "string"},
+            "uniqueItems": true
+          },
+          "processing_status": {"type": "string"},
+          "limitations": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        }
+      }
+    },
+    "processing_status": {"type": "string"},
+    "known_limitations": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  }
+}
